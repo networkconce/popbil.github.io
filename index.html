@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts: Inter + Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- HLS.js para reproducción de streams HLS en navegadores -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
             margin: 0;
@@ -44,7 +46,6 @@
             animation: fadeInUp 0.8s ease;
         }
         
-        /* Animación de icono de wifi */
         .wifi-animation {
             margin-bottom: 30px;
         }
@@ -70,7 +71,6 @@
             }
         }
         
-        /* Barras de señal wifi animadas */
         .signal-bars {
             display: flex;
             justify-content: center;
@@ -166,7 +166,6 @@
             }
         }
         
-        /* Contenido principal - inicialmente oculto */
         .main-content {
             opacity: 0;
             visibility: hidden;
@@ -178,7 +177,6 @@
             visibility: visible;
         }
 
-        /* Fondo tecnológico */
         .tech-bg {
             position: fixed;
             top: 0;
@@ -245,7 +243,6 @@
             z-index: 2;
         }
 
-        /* ===== HEADER / NAVBAR ===== */
         .navbar {
             display: flex;
             flex-wrap: wrap;
@@ -326,7 +323,6 @@
             font-size: 0.8rem;
         }
 
-        /* HERO */
         .hero {
             display: flex;
             flex-wrap: wrap;
@@ -387,7 +383,6 @@
             background: #ea580c20;
         }
 
-        /* Servicios cards */
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -457,7 +452,6 @@
             margin-left: 8px;
         }
 
-        /* REPRODUCTOR EN VIVO */
         .live-section {
             background: rgba(0, 0, 0, 0.65);
             backdrop-filter: blur(16px);
@@ -499,18 +493,19 @@
             70% { opacity: 1; box-shadow: 0 0 0 8px rgba(234,88,12,0); }
             100% { opacity: 0.7; }
         }
-        .iframe-container {
+        .video-container {
             position: relative;
             width: 100%;
             border-radius: 32px;
             overflow: hidden;
+            background: #000;
         }
-        .iframe-container iframe {
+        .video-container video {
             width: 100%;
             height: 520px;
-            border: none;
             border-radius: 32px;
             background: #000;
+            object-fit: contain;
         }
         .live-controls {
             display: flex;
@@ -583,13 +578,12 @@
             .nav-info { justify-content: center; }
             .logo-top-right { align-self: flex-end; }
             .contact-numbers { flex-direction: column; align-items: center; gap: 8px; }
-            .iframe-container iframe { height: 320px; }
+            .video-container video { height: 320px; }
         }
     </style>
 </head>
 <body>
 
-<!-- WIFI LOADER / SPLASH SCREEN -->
 <div class="wifi-loader" id="wifiLoader">
     <div class="loader-content">
         <div class="wifi-animation">
@@ -614,13 +608,11 @@
     </div>
 </div>
 
-<!-- CONTENIDO PRINCIPAL (inicialmente oculto) -->
 <div class="main-content" id="mainContent">
     <div class="tech-bg"></div>
     <div class="particles" id="particles"></div>
 
     <div class="container">
-        <!-- NAVBAR -->
         <div class="navbar">
             <div class="nav-info">
                 <a href="#inicio"><i class="fas fa-home"></i> Inicio</a>
@@ -636,7 +628,6 @@
             </div>
         </div>
 
-        <!-- Hero / Inicio -->
         <div id="inicio" class="hero">
             <div class="hero-text">
                 <h2>Transmisiones de Eventos + Internet + Seguridad</h2>
@@ -649,7 +640,6 @@
             <div><i class="fas fa-satellite-dish" style="font-size: 5rem; color:#ea580c80;"></i></div>
         </div>
 
-        <!-- Servicios -->
         <div class="services-grid">
             <div class="service-card" id="eventos">
                 <div class="service-icon"><i class="fas fa-calendar-alt"></i></div>
@@ -687,31 +677,26 @@
             <div class="service-card">
                 <div class="service-icon"><i class="fas fa-users"></i></div>
                 <h3>Cobertura Total</h3>
-                <p>+100 clientes satisfechos respaldan nuestra calidad. Instalación ágil y atención personalizada en toda el área.</p>
+                <p>+1000 clientes satisfechos respaldan nuestra calidad. Instalación ágil y atención personalizada en toda el área.</p>
                 <ul class="feature-list">
                     <li><i class="fas fa-clock"></i> Instalación rápida</li>
                     <li><i class="fas fa-chart-line"></i> Monitoreo 24/7</li>
                     <li><i class="fas fa-handshake"></i> Atención personalizada</li>
-                    <li><i class="fas fa-smile"></i> Más de 100 clientes felices</li>
+                    <li><i class="fas fa-smile"></i> Más de 1000 clientes felices</li>
                 </ul>
             </div>
         </div>
 
-        <!-- SECCIÓN EN VIVO con iframe -->
+        <!-- SECCIÓN EN VIVO con video HLS usando HLS.js -->
         <div id="live" class="live-section">
             <div class="live-header">
                 <h3><i class="fas fa-circle" style="color:#ea580c; font-size: 1.2rem;"></i> POPB'IL EN VIVO</h3>
                 <div class="live-badge"><i class="fas fa-play"></i> STREAMING ACTIVO</div>
             </div>
-            <div class="iframe-container">
-                <iframe 
-                    id="liveIframe"
-                    
-                   <source src="http://162.19.255.233:8080/play/UNbAl57p9hXZClOu56FCTf_5weWAERKDgrt9JpvlAiI/m3u8" type="type="application/vnd.apple.mpegurl">
-                    title="POPB'IL Live Streaming"
-                    allow="autoplay; fullscreen"
-                    allowfullscreen>
-                </iframe>
+            <div class="video-container">
+                <video id="liveVideo" controls autoplay muted playsinline poster="https://placehold.co/1920x1080/111827/ea580c?text=POPB'IL+LIVE">
+                    Tu navegador no soporta reproducción de video HLS.
+                </video>
             </div>
             <div class="live-controls">
                 <button class="btn-reset-live" id="resetLiveStreamBtn"><i class="fas fa-sync-alt"></i> Reiniciar transmisión EN VIVO</button>
@@ -729,64 +714,82 @@
             <div><i class="fas fa-envelope"></i> produccionespobil@gmail.com</div>
         </div>
         <div class="container copy">
-            <p>© 2026 Producciones Popbil — Conexión exitosa · +100 clientes satisfechos · Transmisiones de Eventos ULTRA HD · Internet de alta velocidad · Cámaras de seguridad</p>
+            <p>© 2026 Producciones Popbil — Conexión exitosa · +1000 clientes satisfechos · Transmisiones de Eventos ULTRA HD · Internet de alta velocidad · Cámaras de seguridad</p>
         </div>
     </footer>
 </div>
 
 <script>
     (function() {
-        // Generar partículas flotantes
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            if(!particlesContainer) return;
-            for(let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                const size = Math.random() * 4 + 1;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = Math.random() * 20 + 10 + 's';
-                particle.style.animationDelay = Math.random() * 10 + 's';
-                particle.style.opacity = Math.random() * 0.5 + 0.2;
-                particlesContainer.appendChild(particle);
-            }
-        }
+        // Configuración del stream
+        const STREAM_URL = "http://162.19.255.233:8080/play/UNbAl57p9hXZClOu56FCTf_5weWAERKDgrt9JpvlAiI/m3u8";
         
-        // Mostrar contenido principal después del loading
+        // Elementos
         const loader = document.getElementById('wifiLoader');
         const mainContent = document.getElementById('mainContent');
+        const video = document.getElementById('liveVideo');
+        let hls = null;
         
-        // Tiempo mínimo de 3 segundos para que se vea el loading
-        setTimeout(() => {
-            if(loader) {
-                loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-                setTimeout(() => {
-                    if(loader) loader.style.display = 'none';
-                }, 800);
+        // Función para inicializar el stream HLS
+        function initHLS() {
+            if (!video) return;
+            
+            // Destruir instancia anterior si existe
+            if (hls) {
+                hls.destroy();
+                hls = null;
             }
-            if(mainContent) {
-                mainContent.classList.add('visible');
+            
+            // Verificar si el navegador soporta HLS.js
+            if (Hls.isSupported()) {
+                hls = new Hls({
+                    debug: false,
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    maxLoadingTime: 10,
+                    maxBufferSize: 60 * 1000 * 1000,
+                    maxBufferLength: 30
+                });
+                hls.loadSource(STREAM_URL);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play().catch(e => console.log('Autoplay bloqueado por el navegador:', e));
+                });
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('Error HLS:', data);
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                setTimeout(() => initHLS(), 3000);
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+            } 
+            // Fallback para Safari (soporte nativo de HLS)
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = STREAM_URL;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play().catch(e => console.log('Autoplay bloqueado:', e));
+                });
+            } else {
+                console.error('HLS no soportado en este navegador');
+                mostrarAviso('⚠️ Tu navegador no soporta reproducción de video en vivo');
             }
-            createParticles();
-        }, 3000);
-        
-        const iframe = document.getElementById('liveIframe');
-        
-        // Función para reiniciar el iframe de Owncast
-        function reiniciarLive() {
-            if(iframe) {
-                const currentSrc = iframe.src;
-                iframe.src = 'about:blank';
-                setTimeout(() => {
-                    iframe.src = currentSrc;
-                }, 100);
-            }
-            mostrarAviso("🔄 Reiniciando transmisión EN VIVO");
         }
         
+        // Función para reiniciar el stream
+        function reiniciarLive() {
+            mostrarAviso("🔄 Reiniciando transmisión EN VIVO");
+            initHLS();
+        }
+        
+        // Función para mostrar avisos toast
         function mostrarAviso(mensaje) {
             let toast = document.createElement('div');
             toast.innerText = mensaje;
@@ -808,8 +811,45 @@
             setTimeout(() => {
                 toast.style.opacity = "0";
                 setTimeout(() => toast.remove(), 300);
-            }, 1800);
+            }, 2000);
         }
+        
+        // Generar partículas flotantes
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            if(!particlesContainer) return;
+            for(let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 4 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 20 + 10 + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.opacity = Math.random() * 0.5 + 0.2;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Mostrar contenido principal después del loading
+        setTimeout(() => {
+            if(loader) {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+                setTimeout(() => {
+                    if(loader) loader.style.display = 'none';
+                }, 800);
+            }
+            if(mainContent) {
+                mainContent.classList.add('visible');
+            }
+            createParticles();
+            // Inicializar el stream después de que la página cargue
+            setTimeout(() => {
+                initHLS();
+            }, 500);
+        }, 3000);
         
         // Botón reiniciar live
         const resetLiveBtn = document.getElementById('resetLiveStreamBtn');
@@ -873,7 +913,7 @@
             });
         }
         
-        // efecto conexión exitosa
+        // Efecto conexión exitosa
         const badgeIcon = document.querySelector('.badge-conexion i');
         if(badgeIcon) {
             setInterval(() => {
@@ -881,6 +921,15 @@
                 setTimeout(() => badgeIcon.style.textShadow = "none", 500);
             }, 2500);
         }
+        
+        // Manejar visibilidad de la página (pausar/reanudar cuando no está visible)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (hls) hls.stopLoad();
+            } else {
+                if (hls) hls.startLoad();
+            }
+        });
     })();
 </script>
 </body>
